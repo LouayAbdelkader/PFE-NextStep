@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: silou19/pfe-e-com-frontend:latest  # Replace with your actual Docker image if necessary
+          image: mohamedlouay/pfe-e-com-frontend:latest  # Replace with your actual Docker image if necessary
           ports:
             - containerPort: 80  # Port the frontend listens on
 
