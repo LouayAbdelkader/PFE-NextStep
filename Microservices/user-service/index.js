@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 // MongoDB connection URI
 
-const uri = 'mongodb://mongo-serviceadmin:pass123@mongodb-service:27017/ecommerce';
+const uri = 'mongodb://admin:pass123@mongodb-service:27017/ecommerce?authSource=admin';
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 let db;
