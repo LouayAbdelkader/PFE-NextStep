@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 2  # Number of replicas for the user-service
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: silou19/pfe-e-com-user-service:latest  # Replace with your Docker Hub username and image name
+          ports:
+            - containerPort: 8001  # Port on which the user service listens
+          env:
+            - name: NODE_ENV
+              value: "production"  # Production environment
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  type: NodePort
+  selector:
+    app: users
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+      nodePort: 30081  # Choose a port between 30000-32767

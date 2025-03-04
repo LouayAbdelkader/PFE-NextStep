@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Frontend</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">E-Commerce Store</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item" id="loginNav">
+                        <button class="btn btn-outline-light" onclick="showLoginForm()">Login</button>
+                    </li>
+                    <!-- The logout button is hidden initially -->
+                    <li class="nav-item" id="logoutNav" class="d-none">
+                        <button class="btn btn-outline-light" onclick="logout()">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+        <div class="container mt-5 d-flex justify-content-center align-items-center" style="min-height: 80vh;" id="auth-section">
+            <div class="card p-4" style="width: 100%; max-width: 400px;">
+                <div class="text-center mb-4" id="auth-section">
+                    <h2 id="auth-title">Login</h2>
+                    <input type="email" id="email" class="form-control mb-2" placeholder="Email">
+                    <input type="password" id="password" class="form-control mb-2" placeholder="Password">
+                    <button class="btn btn-success w-100" onclick="authenticateUser()">Login</button>
+                    <button class="btn btn-primary w-100 mt-2" onclick="toggleForm()">Switch to Sign Up</button>
+                </div>
+    
+                <div class="text-center mb-4 d-none" id="signup-section">
+                    <h2>Sign Up</h2>
+                    <input type="email" id="signup-email" class="form-control mb-2" placeholder="Email">
+                    <input type="password" id="signup-password" class="form-control mb-2" placeholder="Password">
+                    <button class="btn btn-success w-100" onclick="authenticateUser(true)">Sign Up</button>
+                    <button class="btn btn-primary w-100 mt-2" onclick="toggleForm()">Switch to Login</button>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 text-center d-none" id="dashboard">
+            <h2>Welcome, <span id="username"></span>!</h2>
+        </div>
+
+        <div class="row" id="product-list"></div>
+    </div>
+
+    <script>
+        let isLogin = true;
+
+        function toggleForm() {
+            isLogin = !isLogin;
+            if (isLogin) {
+                document.getElementById('auth-title').innerText = 'Login';
+                document.querySelector('#auth-section button').innerText = 'Login';
+                document.querySelector('#auth-section button:nth-child(2)').innerText = 'Switch to Sign Up';
+                document.getElementById('auth-section').classList.remove('d-none');
+                document.getElementById('signup-section').classList.add('d-none');
+            } else {
+                document.getElementById('auth-title').innerText = 'Sign Up';
+                document.querySelector('#auth-section button').innerText = 'Sign Up';
+                document.querySelector('#auth-section button:nth-child(2)').innerText = 'Switch to Login';
+                document.getElementById('auth-section').classList.add('d-none');
+                document.getElementById('signup-section').classList.remove('d-none');
+            }
+        }
+
+        async function authenticateUser(isSignup = false) {
+            let email = isSignup ? document.getElementById('signup-email').value : document.getElementById('email').value;
+            let password = isSignup ? document.getElementById('signup-password').value : document.getElementById('password').value;
+            let endpoint = isSignup ? 'signup' : 'login';
+
+            let response = await fetch(`http://172.17.0.2:30081/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                let data = await response.json();
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', email.split('@')[0]);
+                showDashboard();
+            } else {
+                alert('Authentication failed');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-section').classList.add('d-none');
+            document.getElementById('signup-section').classList.add('d-none');
+            document.getElementById('dashboard').classList.remove('d-none');
+            document.getElementById('username').innerText = localStorage.getItem('username');
+            document.getElementById('loginNav').classList.add('d-none');
+            document.getElementById('logoutNav').classList.remove('d-none');
+            fetchProducts();
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            document.getElementById('auth-section').classList.remove('d-none');
+            document.getElementById('loginNav').classList.remove('d-none');
+            document.getElementById('logoutNav').classList.add('d-none');
+            document.getElementById('dashboard').classList.add('d-none');
+            document.getElementById('product-list').innerHTML = ''; // Clear products on logout
+        }
+
+        async function fetchProducts() {
+            try {
+                let response = await fetch('http://172.17.0.2:30082/products');
+                let products = await response.json();
+                let productList = document.getElementById('product-list');
+                productList.innerHTML = '';
+
+                products.forEach(product => {
+                    let productCard = `
+                        <div class="col-md-4">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">${product.name}</h5>
+                                    <p class="card-text">${product.description}</p>
+                                    <p class="card-text"><strong>Price:</strong> $${product.price}</p>
+                                    <button class="btn btn-warning" onclick="orderProduct('${product.id}')">Order Now</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    productList.innerHTML += productCard;
+                });
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        }
+
+        function orderProduct(productId) {
+            alert(`Product ${productId} ordered successfully!`);
+        }
+
+        // Check if user is logged in on page load
+        if (localStorage.getItem('token')) {
+            showDashboard();
+        } else {
+            document.getElementById('loginNav').classList.remove('d-none');  // Show login button if not logged in
+            document.getElementById('logoutNav').classList.add('d-none');     // Hide logout button if not logged in
+        }
+    </script>
+</body>
+</html>
