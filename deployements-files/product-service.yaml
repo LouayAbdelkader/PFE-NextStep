@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: product-service
-          image: mohamedlouay/pfe-e-com-product-service:latest # Remplace <username> par ton nom d'utilisateur Docker Hub
+          image: mohamedlouay/product-service:latest # Remplace <username> par ton nom d'utilisateur Docker Hub
           ports:
             - containerPort: 8002  # Le port sur lequel ton microservice écoute
           env:
