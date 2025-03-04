@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: product-service
+  namespace: developement  # Ajout du namespace
 spec:
   replicas: 2  # Nombre de répliques du microservice
   selector:
@@ -14,7 +15,7 @@ spec:
     spec:
       containers:
         - name: product-service
-          image: silou19/pfe-e-com-product-service:latest # Remplace <username> par ton nom d'utilisateur Docker Hub
+          image: mohamedlouay/pfe-e-com-product-service:latest # Remplace <username> par ton nom d'utilisateur Docker Hub
           ports:
             - containerPort: 8002  # Le port sur lequel ton microservice écoute
           env:
@@ -26,12 +27,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: product-service
+  namespace: developement  # Ajout du namespace
 spec:
   type: NodePort
   selector:
-    app: products
+    app: product-service  # Correction ici
   ports:
     - protocol: TCP
       port: 8002
       targetPort: 8002
-      nodePort: 30082  # Choose a port between 30000-32767
+      nodePort: 30082  # Port entre 30000-32767
