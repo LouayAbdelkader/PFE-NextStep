@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: mohamedlouay/pfe-e-com-user-service:latest  # Replace with your Docker Hub username and image name
+          image: mohamedlouay/user-service:latest  # Replace with your Docker Hub username and image name
           ports:
             - containerPort: 8001  # Port on which the user service listens
           env:
