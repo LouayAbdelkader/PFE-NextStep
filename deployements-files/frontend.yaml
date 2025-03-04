@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
+  namespace: developement  # Ajout du namespace
 spec:
   replicas: 1  # Number of replicas for the frontend service
   selector:
@@ -23,6 +24,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
+  namespace: developement  # Ajout du namespace
 spec:
   type: NodePort  # Change from ClusterIP to NodePort
   selector:
@@ -31,5 +33,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30080  # Port between 30000-32767
-
+      nodePort: 30080  # Port entre 30000-32767
