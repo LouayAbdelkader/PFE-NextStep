@@ -79,7 +79,7 @@
             let password = isSignup ? document.getElementById('signup-password').value : document.getElementById('password').value;
             let endpoint = isSignup ? 'signup' : 'login';
 
-            let response = await fetch(`http://172.17.0.2:30081/${endpoint}`, {
+            let response = await fetch(`http://192.168.1.22:30081/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -117,7 +117,7 @@
 
         async function fetchProducts() {
             try {
-                let response = await fetch('http://172.17.0.2:30082/products');
+                let response = await fetch('http://192.168.1.22:30082/products');
                 let products = await response.json();
                 let productList = document.getElementById('product-list');
                 productList.innerHTML = '';
