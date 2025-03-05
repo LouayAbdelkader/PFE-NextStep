@@ -1,22 +1,37 @@
-# Use the official Node.js image as the base image
-FROM node:18
+# Use a slim base image to reduce vulnerabilities
+FROM node:18-slim AS builder
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json (if available) to the container
+# Copy package files
 COPY package*.json ./
 
-# Install the dependencies
-RUN npm install
+# Install dependencies securely
+RUN npm install --production --ignore-scripts && \
+    npm audit fix --production || true && \
+    apt-get update && apt-get upgrade -y && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy the rest of the application code to the container
+# Copy application code
 COPY . .
 
-# Expose the port that the app will run on
+# Final stage for runtime
+FROM node:18-slim
+
+WORKDIR /usr/src/app
+
+# Copy only necessary files from builder
+COPY --from=builder /usr/src/app /usr/src/app
+
+# Create a non-root user and switch to it
+RUN useradd -m appuser && chown -R appuser:appuser /usr/src/app
+USER appuser
+
+# Expose port
 EXPOSE 8002
 
-# Set the environment variable to specify the Node environment
+# Set environment variable
 ENV NODE_ENV=production
 
 # Run the app
